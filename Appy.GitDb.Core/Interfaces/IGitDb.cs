@@ -13,6 +13,8 @@ namespace Appy.GitDb.Core.Interfaces
         Task<IReadOnlyCollection<T>> GetFiles<T>(string branch, string key);
         Task<IReadOnlyCollection<string>> GetFiles(string branch, string key);
 
+        Task<IReadOnlyCollection<string>> GetSubfolders(string branch, string key);
+
         Task<string> Save(string branch, string message, Document document, Author author);
         Task<string> Save<T>(string branch, string message, Document<T> document, Author author);
 

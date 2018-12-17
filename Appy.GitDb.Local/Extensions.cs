@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Appy.GitDb.Local
 {
@@ -6,5 +7,6 @@ namespace Appy.GitDb.Local
     {
         public static T As<T>(this string source) =>
             JsonConvert.DeserializeObject<T>(source);
+
     }
 }

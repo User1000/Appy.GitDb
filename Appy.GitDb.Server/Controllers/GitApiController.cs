@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using Appy.GitDb.Core.Interfaces;
 using Appy.GitDb.Core.Model;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Appy.GitDb.Server
 {
-    public class GitApiController : ApiController
+    public class GitApiController : ControllerBase
     {
         readonly IGitDb _gitDb;
 
@@ -20,58 +20,64 @@ namespace Appy.GitDb.Server
 
         [Route("{branch}/document/{*key}")]
         [HttpGet]
-        [Authorize(Roles = "admin, read")]
-        public Task<IHttpActionResult> Get(string branch, string key) =>
-            result(() => _gitDb.Get(branch, key));
+        //[Authorize(Roles = "admin, read")]
+        public Task<IActionResult> Get(string branch, string key) =>
+            result(() => _gitDb.Get(branch, WebUtility.UrlDecode(key)));
 
         [Route("{branch}/documents/{*key}")]
         [HttpGet]
-        [Authorize(Roles = "admin, read")]
-        public Task<IHttpActionResult> GetFiles(string branch, string key) =>
+        //[Authorize(Roles = "admin, read")]
+        public Task<IActionResult> GetFiles(string branch, string key) =>
             result(() => _gitDb.GetFiles(branch, key));
+
+        [Route("{branch}/subfolders/{*key}")]
+        [HttpGet]
+        //[Authorize(Roles = "admin, read")]
+        public Task<IActionResult> GetSubFolders(string branch, string key) =>
+            result(() => _gitDb.GetSubfolders(branch, key));
 
         [Route("{branch}/document")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> Save(string branch, [FromBody] SaveRequest request) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> Save(string branch, [FromBody] SaveRequest request) =>
             result(() => _gitDb.Save(branch, request.Message, request.Document, request.Author));
 
         [Route("{branch}/document/delete")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> Delete(string branch, [FromBody] DeleteRequest request) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> Delete(string branch, [FromBody] DeleteRequest request) =>
             result(() => _gitDb.Delete(branch, request.Key, request.Message, request.Author));
 
         [Route("{branch}/transactions/close")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> CloseTransactions(string branch) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> CloseTransactions(string branch) =>
             result(() => _gitDb.CloseTransactions(branch));
 
         [Route("tag")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> Tag([FromBody] Reference reference) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> Tag([FromBody] Reference reference) =>
             result(() => _gitDb.Tag(reference));
 
         [Route("branch")]
         [HttpGet]
-        [Authorize(Roles = "admin,read")]
-        public Task<IHttpActionResult> GetBranches() =>
+        //[Authorize(Roles = "admin,read")]
+        public Task<IActionResult> GetBranches() =>
             result(() => _gitDb.GetAllBranches());
 
         [Route("branch")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> CreateBranch([FromBody] Reference reference) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> CreateBranch([FromBody] Reference reference) =>
             result(() => _gitDb.CreateBranch(reference));
 
         static readonly Dictionary<string, ITransaction> _transactions = new Dictionary<string, ITransaction>();
 
         [Route("{branch}/transaction")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> CreateTransaction(string branch) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> CreateTransaction(string branch) =>
             result(async () =>
             {
                 var trans = await _gitDb.CreateTransaction(branch);
@@ -82,46 +88,46 @@ namespace Appy.GitDb.Server
 
         [Route("{branch}")]
         [HttpDelete]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> DeleteBranch(string branch) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> DeleteBranch(string branch) =>
            result(() => _gitDb.DeleteBranch(branch));
 
         [Route("tag/{tag}")]
         [HttpDelete]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> DeleteTag(string tag) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> DeleteTag(string tag) =>
             result(() => _gitDb.DeleteTag(tag));
 
         [Route("{transactionId}/add")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> AddToTransaction(string transactionId, Document document) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> AddToTransaction(string transactionId, Document document) =>
             result(() => _transactions[transactionId].Add(document));
 
         [Route("{transactionId}/addmany")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> AddToTransaction(string transactionId, List<Document> documents) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> AddToTransaction(string transactionId, List<Document> documents) =>
             result(() => _transactions[transactionId].AddMany(documents));
 
 
         [Route("{transactionId}/delete/{key}")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> DeleteInTransaction(string transactionId, string key) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> DeleteInTransaction(string transactionId, string key) =>
             result(() => _transactions[transactionId].Delete(key));
 
         [Route("{transactionId}/deleteMany")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> DeleteInTransaction(string transactionId, List<string> keys) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> DeleteInTransaction(string transactionId, List<string> keys) =>
             result(() => _transactions[transactionId].DeleteMany(keys));
 
 
         [Route("{transactionId}/commit")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> CommitTransaction(string transactionId, [FromBody] CommitTransaction commit) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> CommitTransaction(string transactionId, [FromBody] CommitTransaction commit) =>
             result(async () =>
             {
                 var transaction = _transactions[transactionId];
@@ -132,8 +138,8 @@ namespace Appy.GitDb.Server
 
         [Route("{transactionId}/abort")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> AbortTransaction(string transactionId) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> AbortTransaction(string transactionId) =>
             result(async () =>
             {
                 var transaction = _transactions[transactionId];
@@ -143,30 +149,30 @@ namespace Appy.GitDb.Server
 
         [Route("merge")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> Merge(MergeRequest mergeRequest) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> Merge(MergeRequest mergeRequest) =>
            result(() =>_gitDb.MergeBranch(mergeRequest.Source, mergeRequest.Target, mergeRequest.Author, mergeRequest.Message));
 
         [Route("{branch}/rebase")]
         [HttpPost]
-        [Authorize(Roles = "admin,write")]
-        public Task<IHttpActionResult> Rebase(RebaseRequest rebaseRequest) =>
+        //[Authorize(Roles = "admin,write")]
+        public Task<IActionResult> Rebase(RebaseRequest rebaseRequest) =>
             result(() => _gitDb.RebaseBranch(rebaseRequest.Source, rebaseRequest.Target, rebaseRequest.Author, rebaseRequest.Message));
 
         [Route("diff/{reference}/{reference2}")]
         [HttpGet]
-        [Authorize(Roles = "admin,read")]
-        public Task<IHttpActionResult> Diff(string reference, string reference2) =>
+        //[Authorize(Roles = "admin,read")]
+        public Task<IActionResult> Diff(string reference, string reference2) =>
             result(() => _gitDb.Diff(reference, reference2));
 
         [Route("log/{reference}/{reference2}")]
         [HttpGet]
-        [Authorize(Roles = "admin,read")]
-        public Task<IHttpActionResult> Log(string reference, string reference2) =>
+        //[Authorize(Roles = "admin,read")]
+        public Task<IActionResult> Log(string reference, string reference2) =>
             result(() => _gitDb.Log(reference, reference2));
 
 
-        async Task<IHttpActionResult> result<T>(Func<Task<T>> action)
+        async Task<IActionResult> result<T>(Func<Task<T>> action)
         {
             try
             {
@@ -174,15 +180,17 @@ namespace Appy.GitDb.Server
             }
             catch (ArgumentException ex)
             {
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) {Content = new StringContent(ex.Message)});
+                return Ok();
+                //throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) {Content = new StringContent(ex.Message)});
             }
             catch (NotSupportedException ex)
             {
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(ex.Message) });
+                return Ok();
+                //throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(ex.Message) });
             }
         }
 
-        async Task<IHttpActionResult> result(Func<Task> action)
+        async Task<IActionResult> result(Func<Task> action)
         {
             try
             {
@@ -191,11 +199,13 @@ namespace Appy.GitDb.Server
             }
             catch (ArgumentException ex)
             {
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) {Content = new StringContent(ex.Message)});
+                return Ok();
+                //throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) {Content = new StringContent(ex.Message)});
             }
             catch (NotSupportedException ex)
             {
-                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(ex.Message) });
+                return Ok();
+                //throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(ex.Message) });
             }
         }
 

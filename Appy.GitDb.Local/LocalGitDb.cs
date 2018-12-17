@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -155,6 +155,15 @@ namespace Appy.GitDb.Local
                       .Select(blob => blob.GetContentText())
                       .ToList() ?? 
                 new List<string>()));
+
+        public Task<IReadOnlyCollection<string>> GetSubfolders(string branch, string key) =>
+             Task.FromResult((IReadOnlyCollection<string>)(_repo.Branches[branch].Tip[key]?.Target as Tree)
+                    .Where(entry => entry.TargetType == TreeEntryTargetType.Tree)
+                    .Select(entry => entry.Name)
+                    .Cast<string>()
+                    .ToList() ?? 
+                  new List<string>()
+                );
 
         public Task<string> Save(string branch, string message, Document document, Author author)
         {

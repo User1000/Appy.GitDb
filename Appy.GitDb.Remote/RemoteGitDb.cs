@@ -124,5 +124,11 @@ namespace Appy.GitDb.Remote
              _client.PostAsync($"/{branch}/transactions/close", null)
                     .WhenSuccessful()
                     .AsStringResponse();
+
+        // public async Task<IReadOnlyCollection<string>> GetSubFolders(string branch, string key) =>
+        //     await _client.GetAsync<List<string>>($"/{branch}/subfolders/{key}");
+
+        public async Task<IReadOnlyCollection<string>> GetSubfolders(string branch, string key)=>
+            await _client.GetAsync<List<string>>($"/{branch}/subfolders/{key}");
     }
 }
