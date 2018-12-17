@@ -11,7 +11,7 @@ using Appy.GitDb.Local;
 using Appy.GitDb.Remote;
 using Appy.GitDb.Server;
 using Appy.GitDb.Server.Auth;
-using Appy.GitDb.Watcher;
+// using Appy.GitDb.Watcher;
 using LibGit2Sharp;
 using Microsoft.Owin.Testing;
 using Xunit;
