@@ -4,7 +4,8 @@
 
 # Appy.GitDb
 
-Appy.GitDb is a set of packages and applications to use Git as a NoSql database
+Appy.GitDb is a set of packages and applications to use Git as a NoSql database.
+This fork is created for .net core framework. 
 
 ## Getting Started
 
